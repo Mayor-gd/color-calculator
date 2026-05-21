@@ -62,7 +62,7 @@ const App = () => {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", p: 4, bgcolor: 'white', minHeight: '100vh' }}>
       <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold' }}>
-        Roy's Color-Calculator
+        Roy's Color Calculator
       </Typography>
 
       <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 4 }}>
