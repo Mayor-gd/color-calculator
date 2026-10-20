@@ -46,15 +46,14 @@ const darken = (hex, amount) => {
 
 const App = () => {
   const [color, setColor] = useState("#6366F1");
-  const [lightAmount, setLightAmount] = useState(0.3);
-  const [darkAmount, setDarkAmount] = useState(0.3);
+  const [amount, setAmount] = useState(0.3);
   const [darkMode, setDarkMode] = useState(true);
   const [toastOpen, setToastOpen] = useState(false);
   const [copiedText, setCopiedText] = useState("");
 
   const validHex = /^#[0-9A-Fa-f]{6}$/.test(color) ? color : "#6366F1";
-  const lightHex = rgbToHex(lighten(validHex, lightAmount));
-  const darkHex = rgbToHex(darken(validHex, darkAmount));
+  const lightHex = rgbToHex(lighten(validHex, amount));
+  const darkHex = rgbToHex(darken(validHex, amount));
 
   const baseRgb = hexToRgb(validHex);
   const lightRgb = hexToRgb(lightHex);
@@ -177,32 +176,11 @@ const App = () => {
           />
 
           <TextField
-            label="Lighten"
+            label="Adjustment Amount"
             type="number"
             variant="outlined"
-            value={lightAmount}
-            onChange={(e) => setLightAmount(e.target.value)}
-            inputProps={{ step: 0.05, min: 0, max: 1 }}
-            fullWidth
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "12px",
-                bgcolor: darkMode ? "rgba(15, 23, 42, 0.6)" : "rgba(241, 245, 249, 0.8)",
-                color: darkMode ? "#f8fafc" : "#0f172a",
-                "& fieldset": { borderColor: darkMode ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.08)" },
-                "&:hover fieldset": { borderColor: "#6366f1" },
-                "&.Mui-focused fieldset": { borderColor: "#6366f1" }
-              },
-              "& .MuiInputLabel-root": { color: darkMode ? "#94a3b8" : "#64748b" }
-            }}
-          />
-
-          <TextField
-            label="Darken"
-            type="number"
-            variant="outlined"
-            value={darkAmount}
-            onChange={(e) => setDarkAmount(e.target.value)}
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
             inputProps={{ step: 0.05, min: 0, max: 1 }}
             fullWidth
             sx={{
@@ -220,95 +198,149 @@ const App = () => {
         </Stack>
 
         {/* Swatches Grid */}
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={2} justifyContent="center">
-          {[
-            { label: "Base Color", hex: validHex, rgb: baseRgb },
-            { label: "Lightened", hex: lightHex, rgb: lightRgb },
-            { label: "Darkened", hex: darkHex, rgb: darkRgb }
-          ].map(({ label, hex, rgb }) => (
-            <Paper
-              key={label}
-              elevation={0}
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={3}
+          sx={{ mb: 2 }}
+        >
+          {/* Lighter Box */}
+          <Box
+            onClick={() => handleCopy(lightHex)}
+            sx={{
+              flex: 1,
+              bgcolor: darkMode ? "rgba(15, 23, 42, 0.6)" : "rgba(241, 245, 249, 0.8)",
+              border: `1px solid ${darkMode ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.08)"}`,
+              borderRadius: "16px",
+              p: 2,
+              textAlign: "center",
+              cursor: "pointer",
+              transition: "transform 0.2s, border-color 0.2s",
+              "&:hover": { transform: "translateY(-4px)", borderColor: "#6366f1" }
+            }}
+          >
+            <Box
               sx={{
-                flex: 1,
-                bgcolor: darkMode ? "rgba(15, 23, 42, 0.6)" : "rgba(241, 245, 249, 0.8)",
-                border: `1px solid ${darkMode ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.08)"}`,
-                borderRadius: "16px",
-                p: 2,
+                width: "100%",
+                height: 110,
+                bgcolor: lightHex,
+                borderRadius: "12px",
+                mb: 2,
                 display: "flex",
-                flexDirection: "column",
                 alignItems: "center",
-                transition: "transform 0.2s, border-color 0.2s",
-                "&:hover": {
-                  transform: "translateY(-4px)",
-                  borderColor: "#6366f1"
-                }
+                justifyContent: "center",
+                boxShadow: "inset 0 2px 4px rgba(0,0,0,0.1)"
               }}
             >
-              <Box
-                onClick={() => handleCopy(hex)}
-                sx={{
-                  width: "100%",
-                  height: 110,
-                  bgcolor: hex,
-                  borderRadius: "12px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  position: "relative",
-                  boxShadow: "inset 0 2px 4px rgba(0,0,0,0.1)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  "&:hover .copy-overlay": { opacity: 1, transform: "translateY(0)" }
-                }}
-              >
-                <Box
-                  className="copy-overlay"
-                  sx={{
-                    position: "absolute",
-                    bgcolor: "rgba(0, 0, 0, 0.6)",
-                    color: "#fff",
-                    px: 1.5,
-                    py: 0.75,
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    borderRadius: "6px",
-                    opacity: 0,
-                    transform: "translateY(10px)",
-                    transition: "opacity 0.2s ease, transform 0.2s ease",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 0.5
-                  }}
-                >
-                  <ContentCopy sx={{ fontSize: 14 }} /> Copy
-                </Box>
-              </Box>
+              <ContentCopy sx={{ color: "#fff", opacity: 0, transition: "opacity 0.2s", ".MuiBox-root:hover &": { opacity: 1 } }} />
+            </Box>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
+              Lighter
+            </Typography>
+            <Typography variant="body2" sx={{ fontFamily: "monospace", fontWeight: 600, mb: 0.5, color: "#818cf8" }}>
+              {lightHex}
+            </Typography>
+            <Typography variant="caption" sx={{ color: darkMode ? "#94a3b8" : "#64748b" }}>
+              RGB({lightRgb.r}, {lightRgb.g}, {lightRgb.b})
+            </Typography>
+          </Box>
 
-              <Box sx={{ mt: 2, textAlign: "center", width: "100%" }}>
-                <Typography sx={{ fontSize: "13px", fontWeight: 600, color: darkMode ? "#94a3b8" : "#64748b", mb: 0.5 }}>
-                  {label}
-                </Typography>
-                <Typography sx={{ fontSize: "15px", fontWeight: 700, color: darkMode ? "#f8fafc" : "#0f172a", mb: 0.5 }}>
-                  {hex}
-                </Typography>
-                <Typography sx={{ fontSize: "12px", color: darkMode ? "#94a3b8" : "#64748b" }}>
-                  RGB({rgb.r}, {rgb.g}, {rgb.b})
-                </Typography>
-              </Box>
-            </Paper>
-          ))}
+          {/* Base Box */}
+          <Box
+            onClick={() => handleCopy(validHex)}
+            sx={{
+              flex: 1,
+              bgcolor: darkMode ? "rgba(15, 23, 42, 0.6)" : "rgba(241, 245, 249, 0.8)",
+              border: `1px solid ${darkMode ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.08)"}`,
+              borderRadius: "16px",
+              p: 2,
+              textAlign: "center",
+              cursor: "pointer",
+              transition: "transform 0.2s, border-color 0.2s",
+              "&:hover": { transform: "translateY(-4px)", borderColor: "#6366f1" }
+            }}
+          >
+            <Box
+              sx={{
+                width: "100%",
+                height: 110,
+                bgcolor: validHex,
+                borderRadius: "12px",
+                mb: 2,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "inset 0 2px 4px rgba(0,0,0,0.1)"
+              }}
+            >
+              <ContentCopy sx={{ color: "#fff", opacity: 0, transition: "opacity 0.2s", ".MuiBox-root:hover &": { opacity: 1 } }} />
+            </Box>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
+              Base Color
+            </Typography>
+            <Typography variant="body2" sx={{ fontFamily: "monospace", fontWeight: 600, mb: 0.5, color: "#818cf8" }}>
+              {validHex}
+            </Typography>
+            <Typography variant="caption" sx={{ color: darkMode ? "#94a3b8" : "#64748b" }}>
+              RGB({baseRgb.r}, {baseRgb.g}, {baseRgb.b})
+            </Typography>
+          </Box>
+
+          {/* Darker Box */}
+          <Box
+            onClick={() => handleCopy(darkHex)}
+            sx={{
+              flex: 1,
+              bgcolor: darkMode ? "rgba(15, 23, 42, 0.6)" : "rgba(241, 245, 249, 0.8)",
+              border: `1px solid ${darkMode ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.08)"}`,
+              borderRadius: "16px",
+              p: 2,
+              textAlign: "center",
+              cursor: "pointer",
+              transition: "transform 0.2s, border-color 0.2s",
+              "&:hover": { transform: "translateY(-4px)", borderColor: "#6366f1" }
+            }}
+          >
+            <Box
+              sx={{
+                width: "100%",
+                height: 110,
+                bgcolor: darkHex,
+                borderRadius: "12px",
+                mb: 2,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "inset 0 2px 4px rgba(0,0,0,0.1)"
+              }}
+            >
+              <ContentCopy sx={{ color: "#fff", opacity: 0, transition: "opacity 0.2s", ".MuiBox-root:hover &": { opacity: 1 } }} />
+            </Box>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
+              Darker
+            </Typography>
+            <Typography variant="body2" sx={{ fontFamily: "monospace", fontWeight: 600, mb: 0.5, color: "#818cf8" }}>
+              {darkHex}
+            </Typography>
+            <Typography variant="caption" sx={{ color: darkMode ? "#94a3b8" : "#64748b" }}>
+              RGB({darkRgb.r}, {darkRgb.g}, {darkRgb.b})
+            </Typography>
+          </Box>
         </Stack>
       </Paper>
 
-      {/* Snackbar Toast */}
+      {/* Copy Toast Notification */}
       <Snackbar
         open={toastOpen}
         autoHideDuration={2000}
         onClose={() => setToastOpen(false)}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert onClose={() => setToastOpen(false)} severity="success" sx={{ width: "100%", fontWeight: 600 }}>
+        <Alert 
+          onClose={() => setToastOpen(false)} 
+          severity="success" 
+          variant="filled"
+          sx={{ width: '100%', borderRadius: "10px", fontWeight: 600 }}
+        >
           Copied {copiedText} to clipboard!
         </Alert>
       </Snackbar>
