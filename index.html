@@ -2,12 +2,475 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>my-color-app</title>
+    <title>Color Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --primary: #6366f1;
+        --primary-hover: #4f46e5;
+        --bg: #0f172a;
+        --card-bg: rgba(30, 41, 59, 0.7);
+        --card-border: rgba(255, 255, 255, 0.08);
+        --text: #f8fafc;
+        --text-secondary: #94a3b8;
+        --input-bg: rgba(15, 23, 42, 0.6);
+        --font: 'Plus Jakarta Sans', sans-serif;
+        --gradient-bg: radial-gradient(circle at 50% 0%, #1e1b4b 0%, var(--bg) 100%);
+        --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      }
+
+      [data-theme="light"] {
+        --primary: #4f46e5;
+        --primary-hover: #4338ca;
+        --bg: #f8fafc;
+        --card-bg: rgba(255, 255, 255, 0.85);
+        --card-border: rgba(0, 0, 0, 0.08);
+        --text: #0f172a;
+        --text-secondary: #64748b;
+        --input-bg: rgba(241, 245, 249, 0.8);
+        --gradient-bg: radial-gradient(circle at 50% 0%, #e0e7ff 0%, var(--bg) 100%);
+        --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+      }
+
+      body {
+        font-family: var(--font);
+        background: var(--gradient-bg);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 32px 16px;
+      }
+
+      .app-container {
+        background: var(--card-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--card-border);
+        border-radius: 24px;
+        padding: 40px;
+        max-width: 720px;
+        width: 100%;
+        box-shadow: var(--shadow);
+        position: relative;
+      }
+
+      .theme-toggle {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        background: var(--input-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--text);
+        font-size: 18px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      .theme-toggle:hover {
+        border-color: var(--primary);
+        transform: scale(1.05);
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 36px;
+        padding-right: 40px;
+        padding-left: 40px;
+      }
+
+      .header h1 {
+        font-size: 32px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 8px;
+      }
+
+      [data-theme="light"] .header h1 {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .header p {
+        color: var(--text-secondary);
+        font-size: 15px;
+      }
+
+      .controls-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 36px;
+      }
+
+      @media (max-width: 640px) {
+        .controls-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .input-group label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        letter-spacing: 0.3px;
+      }
+
+      .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .input-wrapper input[type="text"],
+      .input-wrapper input[type="number"] {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 15px;
+        font-family: var(--font);
+        font-weight: 600;
+        background: var(--input-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        color: var(--text);
+        outline: none;
+      }
+
+      .input-wrapper input[type="text"]:focus,
+      .input-wrapper input[type="number"]:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+      }
+
+      .color-picker-btn {
+        position: absolute;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        background: transparent;
+      }
+
+      .color-picker-btn::-webkit-color-swatch-wrapper {
+        padding: 0;
+      }
+
+      .color-picker-btn::-webkit-color-swatch {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+      }
+
+      .swatches-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+      }
+
+      @media (max-width: 640px) {
+        .swatches-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .swatch-card {
+        background: var(--input-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .swatch-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--primary);
+      }
+
+      .swatch-box {
+        width: 100%;
+        height: 110px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .swatch-box:hover {
+        transform: scale(1.03);
+      }
+
+      .copy-hint {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        opacity: 0;
+      }
+
+      .swatch-box:hover .copy-hint {
+        opacity: 1;
+      }
+
+      .swatch-info {
+        width: 100%;
+        margin-top: 14px;
+        text-align: center;
+      }
+
+      .swatch-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+      }
+
+      .swatch-hex {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 2px;
+      }
+
+      .swatch-rgb {
+        font-size: 12px;
+        color: var(--text-secondary);
+        font-family: monospace;
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: var(--text);
+        color: var(--bg);
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        z-index: 1000;
+      }
+
+      .toast.show {
+        transform: translateX(-50%) translateY(0);
+      }
+    </style>
   </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+  <body data-theme="dark">
+    <div class="app-container">
+      <button class="theme-toggle" id="themeToggleBtn" title="Toggle Light/Dark Mode">☀️</button>
+      
+      <div class="header">
+        <h1>Color Calculator</h1>
+        <p>Explore, calculate tints & shades, and copy color codes instantly.</p>
+      </div>
+
+      <div class="controls-grid">
+        <div class="input-group">
+          <label for="colorInput">Base HEX Color</label>
+          <div class="input-wrapper">
+            <input type="text" id="colorInput" value="#6366f1" maxlength="7" />
+            <input type="color" id="colorPicker" class="color-picker-btn" value="#6366f1" />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="lightAmount">Lighten Amount</label>
+          <div class="input-wrapper">
+            <input type="number" id="lightAmount" value="0.3" min="0" max="1" step="0.05" />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="darkAmount">Darken Amount</label>
+          <div class="input-wrapper">
+            <input type="number" id="darkAmount" value="0.3" min="0" max="1" step="0.05" />
+          </div>
+        </div>
+      </div>
+
+      <div class="swatches-grid" id="swatchesContainer">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+
+    <div class="toast" id="toast">Copied to clipboard!</div>
+
+    <script>
+      const colorInput = document.getElementById('colorInput');
+      const colorPicker = document.getElementById('colorPicker');
+      const lightAmountInput = document.getElementById('lightAmount');
+      const darkAmountInput = document.getElementById('darkAmount');
+      const swatchesContainer = document.getElementById('swatchesContainer');
+      const toast = document.getElementById('toast');
+      const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+      // Theme toggle handler
+      themeToggleBtn.addEventListener('click', () => {
+        const body = document.body;
+        const currentTheme = body.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        body.setAttribute('data-theme', newTheme);
+        themeToggleBtn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+      });
+
+      function hexToRgb(hex) {
+        let cleanHex = hex.replace('#', '');
+        if (cleanHex.length === 3) {
+          cleanHex = cleanHex.split('').map(c => c + c).join('');
+        }
+        const num = parseInt(cleanHex, 16);
+        return {
+          r: (num >> 16) & 255,
+          g: (num >> 8) & 255,
+          b: num & 255
+        };
+      }
+
+      function rgbToHex({ r, g, b }) {
+        return "#" + [r, g, b].map(x => {
+          const hex = Math.round(x).toString(16);
+          return hex.length === 1 ? "0" + hex : hex;
+        }).join("").toUpperCase();
+      }
+
+      function lighten(hex, amount) {
+        const { r, g, b } = hexToRgb(hex);
+        const amt = parseFloat(amount) || 0;
+        return {
+          r: Math.min(255, Math.round(r + (255 - r) * amt)),
+          g: Math.min(255, Math.round(g + (255 - g) * amt)),
+          b: Math.min(255, Math.round(b + (255 - b) * amt))
+        };
+      }
+
+      function darken(hex, amount) {
+        const { r, g, b } = hexToRgb(hex);
+        const amt = parseFloat(amount) || 0;
+        return {
+          r: Math.max(0, Math.round(r * (1 - amt))),
+          g: Math.max(0, Math.round(g * (1 - amt))),
+          b: Math.max(0, Math.round(b * (1 - amt)))
+        };
+      }
+
+      function isValidHex(hex) {
+        return /^#?([0-9A-F]{3}){1,2}$/i.test(hex);
+      }
+
+      function showToast(text) {
+        toast.textContent = `Copied: ${text}`;
+        toast.classList.add('show');
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 2000);
+      }
+
+      function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(text);
+        });
+      }
+
+      function updateColors() {
+        let val = colorInput.value.trim();
+        if (!val.startsWith('#')) val = '#' + val;
+
+        if (!isValidHex(val)) return;
+
+        const baseHex = val.toUpperCase();
+        colorPicker.value = baseHex.length === 7 ? baseHex : '#000000';
+
+        const lightAmt = parseFloat(lightAmountInput.value) || 0;
+        const darkAmt = parseFloat(darkAmountInput.value) || 0;
+
+        const lighterRgb = lighten(baseHex, lightAmt);
+        const darkerRgb = darken(baseHex, darkAmt);
+
+        const lighterHex = rgbToHex(lighterRgb);
+        const darkerHex = rgbToHex(darkerRgb);
+
+        const baseRgb = hexToRgb(baseHex);
+
+        const swatches = [
+          { title: 'Lighter', hex: lighterHex, rgb: `rgb(${lighterRgb.r}, ${lighterRgb.g}, ${lighterRgb.b})` },
+          { title: 'Base Color', hex: baseHex, rgb: `rgb(${baseRgb.r}, ${baseRgb.g}, ${baseRgb.b})` },
+          { title: 'Darker', hex: darkerHex, rgb: `rgb(${darkerRgb.r}, ${darkerRgb.g}, ${darkerRgb.b})` }
+        ];
+
+        swatchesContainer.innerHTML = swatches.map(s => `
+          <div class="swatch-card">
+            <div class="swatch-box" style="background: ${s.hex};" onclick="copyToClipboard('${s.hex}')">
+              <div class="copy-hint">Click to Copy</div>
+            </div>
+            <div class="swatch-info">
+              <div class="swatch-title">${s.title}</div>
+              <div class="swatch-hex">${s.hex}</div>
+              <div class="swatch-rgb">${s.rgb}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      colorInput.addEventListener('input', (e) => {
+        colorInput.value = e.target.value;
+        updateColors();
+      });
+
+      colorPicker.addEventListener('input', (e) => {
+        colorInput.value = e.target.value.toUpperCase();
+        updateColors();
+      });
+
+      lightAmountInput.addEventListener('input', updateColors);
+      darkAmountInput.addEventListener('input', updateColors);
+
+      // Initial render
+      updateColors();
+    </script>
   </body>
 </html>
